@@ -9,6 +9,7 @@ import (
 
 var (
 	RISWhoisv4Url = "https://www.ris.ripe.net/dumps/riswhoisdump.IPv4.gz"
+	RISWhoisv6Url = "https://www.ris.ripe.net/dumps/riswhoisdump.IPv6.gz"
 )
 
 func download(url string) (fileBytes []byte, err error) {
@@ -27,6 +28,26 @@ func download(url string) (fileBytes []byte, err error) {
 
 func RISWhoisV4() (rw string, err error) {
 	fb, err := download(RISWhoisv4Url)
+	if err != nil {
+		return "", err
+	} else {
+		reader := bytes.NewReader(fb)
+		gzreader, err := gzip.NewReader(reader)
+		if err != nil {
+			return "", err
+		} else {
+			fb, err = io.ReadAll(gzreader)
+			if err != nil {
+				return "", err
+			} else {
+				return string(fb), nil
+			}
+		}
+	}
+}
+
+func RISWhoisV6() (rw string, err error) {
+	fb, err := download(RISWhoisv6Url)
 	if err != nil {
 		return "", err
 	} else {

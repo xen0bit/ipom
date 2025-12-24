@@ -38,7 +38,11 @@ to quickly create a Cobra application.`,
 		}
 		expand, _ := cmd.Flags().GetBool("expand")
 		separator, _ := cmd.Flags().GetString("separator")
+		ipv6, _ := cmd.Flags().GetBool("ipv6")
 		filePath := "riswhoisv4.txt"
+		if ipv6 {
+			filePath = "riswhoisv6.txt"
+		}
 
 		// Check if the file exists
 		_, statErr := os.Stat(filePath)
@@ -49,7 +53,12 @@ to quickly create a Cobra application.`,
 			// Handle other potential errors (e.g., permissions)
 			log.Fatalf("Error checking file '%s': %v\n", filePath, statErr)
 		} else {
-			rwrs, err := ris.LoadV4()
+			var rwrs ris.RISWhoisRecords
+			if ipv6 {
+				rwrs, err = ris.LoadV6()
+			} else {
+				rwrs, err = ris.LoadV4()
+			}
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -107,4 +116,5 @@ func init() {
 	rootCmd.Flags().StringP("asn", "a", "", "Target ASN Number")
 	rootCmd.Flags().BoolP("expand", "e", false, "Expand the CIDR prefix into all individual IPs in range")
 	rootCmd.Flags().StringP("separator", "s", "\n", "Separator for output values")
+	rootCmd.Flags().BoolP("ipv6", "6", false, "Use IPv6 data instead of IPv4")
 }

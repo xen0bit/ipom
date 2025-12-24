@@ -23,12 +23,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Downloading RISWhois Dataset...")
-		rw, err := ris.RISWhoisV4()
+		fmt.Println("Downloading RISWhois IPv4 Dataset...")
+		rwv4, err := ris.RISWhoisV4()
 		if err != nil {
 			log.Fatal(err)
 		}
-		if err := os.WriteFile("riswhoisv4.txt", []byte(rw), 0755); err != nil {
+		if err := os.WriteFile("riswhoisv4.txt", []byte(rwv4), 0755); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println("Downloading RISWhois IPv6 Dataset...")
+		rwv6, err := ris.RISWhoisV6()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err := os.WriteFile("riswhoisv6.txt", []byte(rwv6), 0755); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println("Done")
