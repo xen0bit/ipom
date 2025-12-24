@@ -1,19 +1,13 @@
 package ris
 
 import (
-	"log"
 	"net/netip"
-	"strconv"
 )
 
-func (rwrs *RISWhoisRecords) GetRecords(origin string) []netip.Prefix {
+func (rwrs *RISWhoisRecords) GetRecords(origin int) []netip.Prefix {
 	var cidrs []netip.Prefix
-	oi, err := strconv.Atoi(origin)
-	if err != nil {
-		log.Fatal(err)
-	}
 	for _, r := range *rwrs {
-		if r.Origin == oi {
+		if r.Origin == origin {
 			cidrs = append(cidrs, r.Prefix)
 		}
 	}

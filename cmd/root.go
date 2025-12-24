@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/xen0bit/ipom/pkg/ris"
@@ -26,22 +28,26 @@ to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		asn, _ := cmd.Flags().GetString("asn")
-		if asn == "" {
-			log.Fatal("")
+		asnStr, _ := cmd.Flags().GetString("asn")
+		if asnStr == "" {
+			log.Fatal("Error: ASN must be provided")
+		}
+		asn, err := strconv.Atoi(asnStr)
+		if err != nil {
+			log.Fatalf("Error: Invalid ASN '%s': %v", asnStr, err)
 		}
 		expand, _ := cmd.Flags().GetBool("expand")
 		separator, _ := cmd.Flags().GetString("separator")
 		filePath := "riswhoisv4.txt"
 
 		// Check if the file exists
-		_, err := os.Stat(filePath)
+		_, statErr := os.Stat(filePath)
 
-		if errors.Is(err, os.ErrNotExist) {
+		if errors.Is(statErr, os.ErrNotExist) {
 			log.Fatalf("File '%s' does not exist.\n", filePath)
-		} else if err != nil {
+		} else if statErr != nil {
 			// Handle other potential errors (e.g., permissions)
-			log.Fatalf("Error checking file '%s': %v\n", filePath, err)
+			log.Fatalf("Error checking file '%s': %v\n", filePath, statErr)
 		} else {
 			rwrs, err := ris.LoadV4()
 			if err != nil {
@@ -70,8 +76,10 @@ to quickly create a Cobra application.`,
 					outstring += prefix.String() + separator
 				}
 			}
-			//Trim trailing separator
-			outstring = outstring[:len(outstring)-1]
+			// Trim trailing separator
+			if strings.HasSuffix(outstring, separator) {
+				outstring = strings.TrimSuffix(outstring, separator)
+			}
 			fmt.Println(outstring)
 		}
 	},
@@ -98,5 +106,5 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().StringP("asn", "a", "", "Target ASN Number")
 	rootCmd.Flags().BoolP("expand", "e", false, "Expand the CIDR prefix into all individual IPs in range")
-	rootCmd.Flags().StringP("separator", "s", "\n", "Expand the CIDR prefix into all individual IPs in range")
+	rootCmd.Flags().StringP("separator", "s", "\n", "Separator for output values")
 }
